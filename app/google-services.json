@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "425299728435",
+    "firebase_url": "https://uberdoc-9abea.firebaseio.com",
+    "project_id": "uberdoc-9abea",
+    "storage_bucket": "uberdoc-9abea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425299728435:android:716fabdec3631909",
+        "android_client_info": {
+          "package_name": "com.example.marcus.uberdoc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425299728435-p2tt033ilauh9k9pjhl9d1vr4bv6kefg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.marcus.uberdoc",
+            "certificate_hash": "19b65b74d40d25129e53b9fe447700c573071620"
+          }
+        },
+        {
+          "client_id": "425299728435-d9h307mbmked63a30lelicp7or18mp1j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ17YTHo4lX5GtTEzCr8sN43A4wJGGEws"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425299728435-d9h307mbmked63a30lelicp7or18mp1j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
