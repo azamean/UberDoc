@@ -112,7 +112,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                     String patientID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     HashMap map = new HashMap();
-                    map.put("nextPatientID", patientID);
+                    map.put("", patientID);
                     doctorRef.updateChildren(map);
 
                     getDoctorLocation();
