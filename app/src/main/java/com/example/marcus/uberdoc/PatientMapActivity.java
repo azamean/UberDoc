@@ -26,11 +26,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class PatientMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
@@ -75,7 +81,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                 pickUp = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                 mMap.addMarker(new MarkerOptions().position(pickUp).title("Patient Location"));
 
-                mRequest.setText("Calling doctor, tap to cancel");
+                mRequest.setText("Calling doctor");
 
                 getClosestDoctor();
             }
@@ -101,6 +107,16 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                 if (!doctorFound) {
                     doctorFound = true;
                     doctorFoundID = key;
+
+                    DatabaseReference doctorRef = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorFoundID);
+                    String patientID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    HashMap map = new HashMap();
+                    map.put("nextPatientID", patientID);
+                    doctorRef.updateChildren(map);
+
+                    getDoctorLocation();
+                    mRequest.setText("Looking for doctor...");
                 }
             }
 
@@ -122,6 +138,40 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
         });
     }
 
+
+    Marker mDoctorMarker;
+    private void getDoctorLocation(){
+            DatabaseReference doctorLocationRef = FirebaseDatabase.getInstance().getReference().child("doctorsOnCall").child(doctorFoundID).child("l");
+            doctorLocationRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        List<Object> map = (List<Object>) dataSnapshot.getValue();
+                        double locationLat = 0;
+                        double locationLong = 0;
+
+                        mRequest.setText("Doctor Found");
+
+                        if(map.get(0) != null){
+                            locationLat =  Double.parseDouble(map.get(0).toString());
+                        }
+                        if(map.get(1) != null){
+                            locationLong = Double.parseDouble(map.get(1).toString());
+                        }
+                        LatLng doctorLatLng = new LatLng(locationLat, locationLong);
+                        if(mDoctorMarker != null){
+                            mDoctorMarker.remove();
+                        }
+                        mDoctorMarker = mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Your Doctor"));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
