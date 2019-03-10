@@ -77,17 +77,14 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
 
     private void getAssignedPatient(){
         String doctorID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference assignedPatientRef  = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorID);
+        DatabaseReference assignedPatientRef  = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorID).child("nextPatientID");
 
         assignedPatientRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    Map<String, Objects> map = (Map<String, Objects>) dataSnapshot.getValue();
-                    if(map.get("nextPatientID") != null){
-                        patientID = map.get("nextPatientID").toString();
+                        patientID = dataSnapshot.getValue().toString();
                         getAssignedPatientLocation();
-                    }
                 }
             }
 
@@ -147,17 +144,31 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if(getApplicationContext() != null) {
 
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+            mLastLocation = location;
+            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("doctorAvailable");
+            DatabaseReference refAvailable = FirebaseDatabase.getInstance().getReference("doctorAvailable");
+            DatabaseReference refWorking = FirebaseDatabase.getInstance().getReference("doctorsOnCall");
 
-        GeoFire geoFire = new GeoFire(ref);
-        geoFire.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+            GeoFire geoFireAvailable = new GeoFire(refAvailable);
+            GeoFire geoFireWorking = new GeoFire(refWorking);
+
+            switch (patientID) {
+
+                case "":
+                    geoFireWorking.removeLocation(userID);
+                    geoFireAvailable.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+
+                default:
+                    geoFireAvailable.removeLocation(userID);
+                    geoFireWorking.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+
+            }
+        }
     }
 
     @Override
