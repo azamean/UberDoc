@@ -46,6 +46,8 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
     LocationRequest mLocationRequest;
 
     private Button mLogout, mRequest;
+    private Boolean requestSwitch = false;
+    private Marker pickUpMarker;
     private LatLng pickUp;
 
     @Override
@@ -73,38 +75,74 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
         mRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String userID = FirebaseAuth.getInstance().getUid();
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("patientRequest");
-                GeoFire geoFire = new GeoFire(ref);
-                geoFire.setLocation(userID, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
-                pickUp = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                mMap.addMarker(new MarkerOptions().position(pickUp).title("Patient Location"));
+                if(requestSwitch)
+                {
+                    cancelDoctor();
+                }
+                else
+                {
+                    requestSwitch = true;
 
-                mRequest.setText("Calling doctor");
+                    String userID = FirebaseAuth.getInstance().getUid();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("patientRequest");
+                    GeoFire geoFire = new GeoFire(ref);
+                    geoFire.setLocation(userID, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
-                getClosestDoctor();
+                    pickUp = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                    pickUpMarker = mMap.addMarker(new MarkerOptions().position(pickUp).title("Patient Location"));
+
+                    mRequest.setText("Calling doctor");
+
+                    getClosestDoctor();
+                }
             }
         });
     }
 
+    private void cancelDoctor()
+    {
+        requestSwitch = false;
+        geoQuery.removeAllListeners();
+        doctorLocationRef.removeEventListener(doctorLocationRefListener);
+
+        if(doctorFoundID != null)
+        {
+            DatabaseReference doctorRef = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorFoundID).child("nextPatient");
+            doctorRef.removeValue();
+            doctorFoundID = null;
+        }
+        doctorFound = false;
+        radius = 1;
+
+        String userID = FirebaseAuth.getInstance().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("patientRequest");
+        GeoFire geoFire = new GeoFire(ref);
+        geoFire.removeLocation(userID);
+
+        if(pickUpMarker != null)
+        {
+            pickUpMarker.remove();
+        }
+        mRequest.setText("Call Doctor");
+    }
     private int radius = 1;
     private Boolean doctorFound = false;
     private String doctorFoundID;
-
+    GeoQuery geoQuery;
 
     private void getClosestDoctor(){
         DatabaseReference doctorLocation = FirebaseDatabase.getInstance().getReference().child("doctorAvailable");
 
         GeoFire geoFire = new GeoFire(doctorLocation);
 
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(pickUp.latitude, pickUp.longitude), radius);
+        geoQuery = geoFire.queryAtLocation(new GeoLocation(pickUp.latitude, pickUp.longitude), radius);
         geoQuery.removeAllListeners();
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                if (!doctorFound) {
+                if (!doctorFound && requestSwitch) {
                     doctorFound = true;
                     doctorFoundID = key;
 
@@ -112,7 +150,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                     String patientID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     HashMap map = new HashMap();
-                    map.put("", patientID);
+                    map.put("nextPatient", patientID);
                     doctorRef.updateChildren(map);
 
                     getDoctorLocation();
@@ -140,12 +178,14 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
 
 
     Marker mDoctorMarker;
+    private DatabaseReference doctorLocationRef;
+    private ValueEventListener doctorLocationRefListener;
     private void getDoctorLocation(){
-            DatabaseReference doctorLocationRef = FirebaseDatabase.getInstance().getReference().child("doctorsOnCall").child(doctorFoundID).child("l");
-            doctorLocationRef.addValueEventListener(new ValueEventListener() {
+            doctorLocationRef = FirebaseDatabase.getInstance().getReference().child("doctorsOnCall").child(doctorFoundID).child("l");
+            doctorLocationRefListener = doctorLocationRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
+                    if(dataSnapshot.exists() && requestSwitch){
                         List<Object> map = (List<Object>) dataSnapshot.getValue();
                         double locationLat = 0;
                         double locationLong = 0;
@@ -162,6 +202,25 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                         if(mDoctorMarker != null){
                             mDoctorMarker.remove();
                         }
+                        Location location1 = new Location("");
+                        location1.setLatitude(pickUp.latitude);
+                        location1.setLongitude(pickUp.longitude);
+
+                        Location location2 = new Location("");
+                        location2.setLatitude(doctorLatLng.latitude);
+                        location2.setLongitude(doctorLatLng.longitude);
+
+                        float distance = location1.distanceTo(location2);
+
+                        if (distance < 50)
+                        {
+                            mRequest.setText("Doctor has arrived");
+                        }
+                        else
+                        {
+                            mRequest.setText("Doctor found " + String.valueOf(distance));
+                        }
+
                         mDoctorMarker = mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Your Doctor"));
                     }
                 }
@@ -198,8 +257,6 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
         mLastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
     }
 
     @Override

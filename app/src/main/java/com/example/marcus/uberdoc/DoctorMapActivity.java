@@ -24,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -77,14 +78,23 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
 
     private void getAssignedPatient(){
         String doctorID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference assignedPatientRef  = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorID).child("nextPatientID");
+        DatabaseReference assignedPatientRef  = FirebaseDatabase.getInstance().getReference().child("users").child("doctor").child(doctorID).child("nextPatient");
 
         assignedPatientRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
+                if(dataSnapshot.exists())
+                {
                         patientID = dataSnapshot.getValue().toString();
                         getAssignedPatientLocation();
+                }
+                else
+                {
+                    patientID = "";
+                    if(pickUpMarker != null)
+                    {
+                        pickUpMarker.remove();
+                    }
                 }
             }
 
@@ -94,13 +104,16 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
         });
     }
 
+    Marker pickUpMarker;
+    DatabaseReference assignedPatientLocationRef;
+    private ValueEventListener assignedPatientLocationRefListener;
     private void getAssignedPatientLocation(){
-        DatabaseReference assignedPatientLocationRef = FirebaseDatabase.getInstance().getReference().child("patientRequest").child(patientID).child("l");
-        assignedPatientLocationRef.addValueEventListener(new ValueEventListener() {
+        assignedPatientLocationRef = FirebaseDatabase.getInstance().getReference().child("patientRequest").child(patientID).child("l");
+        assignedPatientLocationRefListener = assignedPatientLocationRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    List<Objects> map = (List<Objects>) dataSnapshot.getValue();
+                if(dataSnapshot.exists() && !patientID.equals("")){
+                    List<Object> map = (List<Object>) dataSnapshot.getValue();
                     double locationLat = 0;
                     double locationLong = 0;
 
@@ -111,7 +124,7 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                         locationLong = Double.parseDouble(map.get(1).toString());
                     }
                     LatLng doctorLatLng = new LatLng(locationLat, locationLong);
-                    mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Patient Location"));
+                    pickUpMarker = mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Patient Location"));
                 }
             }
 
