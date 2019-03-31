@@ -11,7 +11,18 @@
         android:layout_height="wrap_content"
         android:id="@+id/logout"
         android:text="Logout"
-        android:layout_gravity="bottom|end"/>
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:backgroundTint="@color/Crimson"
+        android:layout_marginTop="50sp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/settings"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:backgroundTint="@color/Crimson"
+        android:text="Setings"
+        android:layout_gravity="right"
+        android:layout_marginTop="50sp"/>
 
     <fragment
         android:id="@+id/map"
@@ -19,4 +30,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".DoctorMapActivity" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/patientInfo"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="@color/White"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="40sp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/patientName"
+                android:paddingBottom="10sp"
+                android:paddingTop="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/patientNumber"
+                android:paddingBottom="10sp"
+                android:paddingTop="20sp"/>
+
+
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

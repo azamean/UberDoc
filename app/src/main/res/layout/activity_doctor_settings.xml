@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/relativeLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".DoctorSettings"
+android:orientation="vertical"
+android:paddingLeft="40sp"
+android:paddingRight="40sp"
+android:paddingTop="200sp">
+
+
+<EditText
+    android:id="@+id/doctorName"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="John Smith"
+    android:inputType="textPersonName"
+    android:layout_marginBottom="20sp"/>
+
+<EditText
+    android:id="@+id/doctorNumber"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="08X - XXX - XXXX"
+    android:inputType="phone"
+    android:layout_marginBottom="20sp"/>
+
+<Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/save"
+    android:text="Save"
+    android:backgroundTint="@color/Crimson"/>
+<Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/back"
+    android:text="Back"
+    android:backgroundTint="@color/Crimson"/>
+</LinearLayout>

@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -45,7 +46,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
     Location mLastLocation;
     LocationRequest mLocationRequest;
 
-    private Button mLogout, mRequest;
+    private Button pLogout, pRequest, pSettings;
     private Boolean requestSwitch = false;
     private Marker pickUpMarker;
     private LatLng pickUp;
@@ -59,10 +60,11 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mLogout = (Button) findViewById(R.id.logout);
-        mRequest = (Button) findViewById(R.id.request);
+        pLogout = (Button) findViewById(R.id.logout);
+        pRequest = (Button) findViewById(R.id.request);
+        pSettings = (Button) findViewById(R.id.settings);
 
-        mLogout.setOnClickListener(new View.OnClickListener() {
+        pLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
@@ -72,7 +74,16 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
             }
         });
 
-        mRequest.setOnClickListener(new View.OnClickListener() {
+        pSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PatientMapActivity.this, PatientSettings.class);
+                startActivity(intent);
+                return;
+            }
+        });
+
+        pRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -92,7 +103,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                     pickUp = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                     pickUpMarker = mMap.addMarker(new MarkerOptions().position(pickUp).title("Patient Location"));
 
-                    mRequest.setText("Calling doctor");
+                    pRequest.setText("Calling doctor");
 
                     getClosestDoctor();
                 }
@@ -124,7 +135,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
         {
             pickUpMarker.remove();
         }
-        mRequest.setText("Call Doctor");
+        pRequest.setText("Call Doctor");
     }
     private int radius = 1;
     private Boolean doctorFound = false;
@@ -154,7 +165,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                     doctorRef.updateChildren(map);
 
                     getDoctorLocation();
-                    mRequest.setText("Looking for doctor...");
+                    pRequest.setText("Looking for doctor...");
                 }
             }
 
@@ -190,7 +201,7 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
                         double locationLat = 0;
                         double locationLong = 0;
 
-                        mRequest.setText("Doctor Found");
+                        pRequest.setText("Doctor Found");
 
                         if(map.get(0) != null){
                             locationLat =  Double.parseDouble(map.get(0).toString());
@@ -214,14 +225,14 @@ public class PatientMapActivity extends FragmentActivity implements OnMapReadyCa
 
                         if (distance < 50)
                         {
-                            mRequest.setText("Doctor has arrived");
+                            pRequest.setText("Doctor has arrived");
                         }
                         else
                         {
-                            mRequest.setText("Doctor found " + String.valueOf(distance));
+                            pRequest.setText("Doctor found " + String.valueOf(distance));
                         }
 
-                        mDoctorMarker = mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Your Doctor"));
+                        mDoctorMarker = mMap.addMarker(new MarkerOptions().position(doctorLatLng).title("Your Doctor").icon(BitmapDescriptorFactory.fromResource(R.mipmap.doctor_fg)));
                     }
                 }
 

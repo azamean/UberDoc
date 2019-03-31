@@ -11,6 +11,8 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -33,6 +36,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Map;
@@ -47,9 +52,11 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
     LocationRequest mLocationRequest;
 
 
-    private Button mLogout;
+    private Button dLogout, dSettings;
 
     private String patientID = "";
+    private LinearLayout patientInformation;
+    private TextView pPatientName, pPatientNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +67,15 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mLogout = (Button) findViewById(R.id.logout);
-        mLogout.setOnClickListener(new View.OnClickListener() {
+        dLogout = (Button) findViewById(R.id.logout);
+        dSettings = (Button) findViewById(R.id.settings);
+
+        patientInformation = (LinearLayout) findViewById(R.id.patientInfo);
+        pPatientName = (TextView) findViewById(R.id.patientName);
+        pPatientNumber = (TextView) findViewById(R.id.patientNumber);
+
+
+        dLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 logout();
@@ -70,6 +84,15 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                 Intent intent = new Intent(DoctorMapActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        dSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DoctorMapActivity.this, DoctorSettings.class);
+                startActivity(intent);
+                return;
             }
         });
         getAssignedPatient();
@@ -87,6 +110,8 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                 {
                         patientID = dataSnapshot.getValue().toString();
                         getAssignedPatientLocation();
+                        getAssignedPatientInfo();
+
                 }
                 else
                 {
@@ -95,6 +120,9 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                     {
                         pickUpMarker.remove();
                     }
+                    patientInformation.setVisibility(View.GONE);
+                    pPatientName.setText("");
+                    pPatientNumber.setText("");
                 }
             }
 
@@ -104,6 +132,50 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
         });
     }
 
+    /*==============================================================================================
+
+    Function to get the assigned patients information
+    We use the patientID to read the customers name and number from the database
+    We then set the layout to be visible and populate the name and number fields
+
+    ================================================================================================ */
+
+
+    private void getAssignedPatientInfo()
+    {
+        patientInformation.setVisibility(View.VISIBLE);
+        DatabaseReference pPatientDatabase = FirebaseDatabase.getInstance().getReference().child("users").child("patient").child(patientID);
+        pPatientDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0)
+                {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if(map.get("name") != null)
+                    {
+                        pPatientName.setText(map.get("name").toString());
+                    }
+                    if(map.get("number") != null)
+                    {
+                        pPatientNumber.setText(map.get("number").toString());
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /*==============================================================================================
+
+    Function to get the assigned patients location
+    We get the patients latitude and longitude and add them to a List, then creating a Marker
+
+    ================================================================================================ */
     Marker pickUpMarker;
     DatabaseReference assignedPatientLocationRef;
     private ValueEventListener assignedPatientLocationRefListener;

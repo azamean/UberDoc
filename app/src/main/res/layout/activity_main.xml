@@ -14,6 +14,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="193dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:backgroundTint="@color/Crimson"
         android:text="Doctor" />
 
     <Button
@@ -23,6 +25,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="128dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:backgroundTint="@color/CornflowerBlue"
         android:text="Patient" />
 
     <TextView
@@ -32,7 +36,9 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="64dp"
-        android:text="Welcome to UberDoc" />
+        android:text="Welcome to UberDoc"
+        android:textColor="@color/Crimson"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/intro2"
@@ -40,5 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/intro"
         android:layout_centerHorizontal="true"
-        android:text="Please select login method below" />
+        android:text="Please select login method below"
+        android:textColor="@color/DarkBlue"
+        android:textSize="18sp" />
 </RelativeLayout>
