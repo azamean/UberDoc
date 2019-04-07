@@ -20,7 +20,7 @@
         android:id="@+id/settings"
         style="@style/Widget.AppCompat.Button.Colored"
         android:backgroundTint="@color/CornflowerBlue"
-        android:text="Setings"
+        android:text="Settings"
         android:layout_gravity="right"
         android:layout_marginTop="50sp"/>
     <Button

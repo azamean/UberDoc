@@ -52,7 +52,7 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
     LocationRequest mLocationRequest;
 
 
-    private Button dLogout, dSettings;
+    private Button dLogout, dSettings, dMoreInfo;
 
     private String patientID = "";
     private LinearLayout patientInformation;
@@ -73,6 +73,7 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
         patientInformation = (LinearLayout) findViewById(R.id.patientInfo);
         pPatientName = (TextView) findViewById(R.id.patientName);
         pPatientNumber = (TextView) findViewById(R.id.patientNumber);
+        dMoreInfo = (Button) findViewById(R.id.moreInfo);
 
 
         dLogout.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +85,16 @@ public class DoctorMapActivity extends FragmentActivity implements OnMapReadyCal
                 Intent intent = new Intent(DoctorMapActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        dMoreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DoctorMapActivity.this, PatientInformation.class);
+                //intent.putExtra("patientID", patientID);
+                startActivity(intent);
+                return;
             }
         });
 

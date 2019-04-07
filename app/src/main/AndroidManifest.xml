@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DoctorSettings"></activity>
+        <activity android:name=".PatientInformation"></activity>
+        <activity android:name=".DoctorSettings" />
         <activity android:name=".PatientSettings" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

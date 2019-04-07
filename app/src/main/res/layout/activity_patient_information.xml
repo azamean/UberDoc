@@ -5,28 +5,52 @@ xmlns:tools="http://schemas.android.com/tools"
 android:id="@+id/relativeLayout"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context=".DoctorSettings"
+tools:context=".PatientInformation"
 android:orientation="vertical"
 android:paddingLeft="40sp"
 android:paddingRight="40sp"
-android:paddingTop="150sp">
+android:paddingTop="100sp">
 
 
-<EditText
-    android:id="@+id/doctorName"
+<TextView
+    android:id="@+id/patientName"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:hint="John Smith"
     android:inputType="textPersonName"
     android:layout_marginBottom="20sp"/>
 
-<EditText
-    android:id="@+id/doctorNumber"
+<TextView
+    android:id="@+id/patientNumber"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="08X - XXX - XXXX"
+    android:hint="086 - XXX - XXXX"
     android:inputType="phone"
     android:layout_marginBottom="20sp"/>
+
+    <EditText
+        android:id="@+id/patientConditions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Asthma, etc"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="20sp"/>
+
+    <EditText
+        android:id="@+id/patientAllergies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nuts, etc"
+        android:inputType="text"
+        android:layout_marginBottom="20sp"/>
+
+    <EditText
+        android:id="@+id/patientMedications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Paracetamol, etc"
+        android:inputType="text"
+        android:layout_marginBottom="20sp"/>
 
 <Button
     android:layout_width="match_parent"
